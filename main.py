@@ -58,7 +58,7 @@ if openai_api_key:
                 return None
         else:
             try:
-                vectordb = FAISS.load_local(vectordb_file_path, embedding)
+                vectordb = FAISS.load_local(vectordb_file_path, embedding, allow_dangerous_deserialization=True)
             except Exception as e:
                 st.error(f"Error al cargar la base de datos vectorial: {str(e)}")
                 st.info("Intentando crear una nueva base de datos...")
