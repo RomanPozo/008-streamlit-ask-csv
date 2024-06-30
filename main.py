@@ -46,13 +46,14 @@ if openai_api_key:
         vectordb = FAISS.from_documents(documents, embedding)
 
         # Save vector database locally
+        os.makedirs(vectordb_file_path, exist_ok=True)  # Ensure directory exists
         vectordb.save_local(vectordb_file_path)
         return vectordb
 
 
     def execute_chain():
        # Check if the vector database exists, if not create it
-        if not os.path.exists(vectordb_file_path):
+        if not os.path.exists(f"{vectordb_file_path}/index.faiss"):
             vectordb = create_db()
             if vectordb is None:
                 return None
