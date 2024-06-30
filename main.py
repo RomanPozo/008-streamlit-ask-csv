@@ -110,7 +110,7 @@ if openai_api_key:
 
     if question:
         chain = execute_chain()
-        if chain id not None:
+        if chain is not None:
             
             response = chain(question)
 
