@@ -47,6 +47,10 @@ if openai_api_key:
 
 
     def execute_chain():
+        # Check if the vector database exists, if not create it
+        if not os.path.exists(vectordb_file_path):
+            create_db()
+            
         # Load the vector database from the local folder
         vectordb = FAISS.load_local(vectordb_file_path, embedding)
 
@@ -80,9 +84,9 @@ if openai_api_key:
         return chain
 
 
-    if __name__ == "__main__":
-        create_db()
-        chain = execute_chain()
+   # if __name__ == "__main__":
+    #    create_db()
+     #   chain = execute_chain()
 
 
     btn = st.button("Private button: re-create database")
