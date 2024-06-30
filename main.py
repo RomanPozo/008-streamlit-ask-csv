@@ -38,21 +38,33 @@ if openai_api_key:
     vectordb_file_path = "my_vecdtordb"
 
     def create_db():
+        if not os.path.exists('napoleon-faqs.csv'):
+            st.error("El archivo 'napoleon-faqs.csv' no se encuentra. Por favor, asegúrate de que está en el directorio correcto.")
+            return None
         loader = CSVLoader(file_path='napoleon-faqs.csv', source_column="prompt")
         documents = loader.load()
         vectordb = FAISS.from_documents(documents, embedding)
 
         # Save vector database locally
         vectordb.save_local(vectordb_file_path)
+        return vectordb
 
 
     def execute_chain():
-        # Check if the vector database exists, if not create it
+       # Check if the vector database exists, if not create it
         if not os.path.exists(vectordb_file_path):
-            create_db()
-            
-        # Load the vector database from the local folder
-        vectordb = FAISS.load_local(vectordb_file_path, embedding)
+            vectordb = create_db()
+            if vectordb is None:
+                return None
+        else:
+            try:
+                vectordb = FAISS.load_local(vectordb_file_path, embedding)
+            except Exception as e:
+                st.error(f"Error al cargar la base de datos vectorial: {str(e)}")
+                st.info("Intentando crear una nueva base de datos...")
+                vectordb = create_db()
+                if vectordb is None:
+                    return None
 
         # Create a retriever for querying the vector database
         retriever = vectordb.as_retriever(score_threshold=0.7)
@@ -91,13 +103,18 @@ if openai_api_key:
 
     btn = st.button("Private button: re-create database")
     if btn:
-        create_db()
+        if create_db() is not None:
+            st.success("Base de datos recreada con éxito")
 
     question = st.text_input("Question: ")
 
     if question:
         chain = execute_chain()
-        response = chain(question)
+        if chain id not None:
+            
+            response = chain(question)
 
-        st.header("Answer")
-        st.write(response["result"])
+            st.header("Answer")
+            st.write(response["result"])
+        else:
+            st.error("No se pudo crear o cargar la base de datos vectorial. Por favor, verifica que el archivo CSV esté presente y sea accesible.")
